@@ -6,30 +6,43 @@ from sklearn.model_selection import train_test_split
 from sklearn.datasets import fetch_openml
 from sklearn.utils import shuffle, check_random_state
 import matplotlib.pyplot as plt
+from mlxtend.data import loadlocal_mnist
 
 print("Loading MNIST Dataset ...")
-X, Y = fetch_openml('mnist_784', version=1, return_X_y=True)
 
-print("Shuffling ...")
-random_state = check_random_state(0)
-permutation = random_state.permutation(X.shape[0])
-X = X[permutation]
-Y = Y[permutation]
+X_train, Y_train = loadlocal_mnist(
+        images_path='../mnist_dataset/train-images.idx3-ubyte',
+        labels_path='../mnist_dataset/train-labels.idx1-ubyte')
 
-X = X[0:20000]
-Y = Y[0:20000]
+X_test, Y_test = loadlocal_mnist(
+        images_path='../mnist_dataset/t10k-images.idx3-ubyte',
+        labels_path='../mnist_dataset/t10k-labels.idx1-ubyte')
 
-Y = [ int(y) for y in Y]
+
+print(X_train.shape)
+print(Y_train.shape)
+print(X_test.shape)
+print(Y_test.shape)
+
+X_train = X_train[0:1000]
+Y_train = Y_train[0:1000]
+
+X_test = X_test[0:300]
+Y_test = Y_test[0:300]
+
+Y_train = [ int(y) for y in Y_train]
+Y_test = [ int(y) for y in Y_test]
 
 
 #X = X.reshape((X.shape[0], -1))
 
-print("Separating Train and Test Data ...")
+print("Binarizing the labels ...")
 classes = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9 ]
-Y = label_binarize(Y, classes= classes)
+Y_train = label_binarize(Y_train, classes= classes)
+Y_test = label_binarize(Y_test, classes= classes)
 
-X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size= 0.3,
-                                                    random_state=0)
+
+
 #
 print("Classifying ...")
 svm_classifier = OneVsRestClassifier(svm.SVC(kernel='linear', probability=True))
